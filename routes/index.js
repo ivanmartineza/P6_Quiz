@@ -94,7 +94,7 @@ router.get('/users/:userId(\\d+)/quizzes',
 
 
 // Routes for the resource /quizzes
-<<<<<<< HEAD
+
 router.get('/quizzes',
 	quizController.index);
 router.get('/quizzes/:quizId(\\d+)',
