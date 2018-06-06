@@ -78,3 +78,49 @@ exports.destroy = (req, res, next) => {
     .catch(error => next(error));
 };
 
+
+//EDIT /quizzes/:quizId/tips/:tipId/edit
+exports.edit = (req,res,next) =>{
+
+    const {tip} = req;
+
+    res.render('tips/edit', {tip});
+};
+
+
+//update /quizzes/:quizId/tips/:tipId
+exports.update =(req,res,next) =>{
+
+    const {tip, body} = req;
+
+    tip.answer = body.answer;
+
+    tip.save({fields: ["Tip"]})
+        .then(tip => {
+            req.flash('success', 'Tip edited successfully.');
+            res.redirect('/tips/' + tip.id);
+        })
+        .catch(Sequelize.ValidationError, error => {
+            req.flash('error', 'There are errors in the form:');
+            error.errors.forEach(({message}) => req.flash('error', message));
+            res.render('tips/edit', {tip});
+        })
+        .catch(error => {
+            req.flash('error', 'Error editing the Tip: ' + error.message);
+            next(error);
+        });
+
+};
+
+exports.adminOrAuthorRequired = (req,res,next) =>{
+  const tipAuthor = req.tip.authorId === req.session.user.id ;
+  const isAdmin =  !!req.session.user.isAdmin;
+
+  if(isAdmin || tipAuthor ){
+      next();
+  }else{
+      console.log('Prohibited route: it is not the author of the tip, nor an administrator.');
+      res.send(403);
+  }
+};
+
